@@ -1,22 +1,47 @@
 const Product = require("../models/Product");
+const ErrorHandler = require("../utils/errorHandler");
 
-exports.getAllProducts = async function (req, res) {
-    const products = await Product.find();
-    res.status(200).json({
+exports.getAllProducts = async function (req, res, next) {
+    try {
+        const products = await Product.find();
+        res.status(200).json({
+            success: true,
+            products
+        });
+
+    } catch (exc) {
+        next(new ErrorHandler(exc.message, 500));
+    }
+
+}
+
+exports.getProductDetails = async function (req, res, next) {
+    // check whether the product exists.
+    const product = await Product.findById(req.params.id);
+    if (!product) return next(new ErrorHandler("Product not found!", 400));
+
+    // if the product exists then,
+    return res.status(200).json({
         success: true,
-        products
-    });
+        product
+    })
+
 }
 
 // Admin route
 exports.createProduct = async function (req, res, next) {
-    const product = await Product.create(req.body);
-    // if (!product) return res.status(400).json({ message: "Product not created!" });
+    try {
+        const product = await Product.create(req.body);
+        return res.status(201).json({
+            success: true,
+            product
+        })
+    } catch (exc) {
+        return next(new ErrorHandler("Product not created!", 500));
 
-    res.status(201).json({
-        success: true,
-        product
-    })
+    }
+
+
 
 }
 
@@ -24,10 +49,8 @@ exports.createProduct = async function (req, res, next) {
 exports.updateProduct = async function (req, res, next) {
     // first check if the product exists the product.
     let product = await Product.findById(req.params.id);
-    if (!product) return res.status(400).json({
-        success: false,
-        message: "Product not found!"
-    })
+    if (!product) return next(new ErrorHandler("Product not found!", 400));
+
 
     // if the product is found then update it.
     product = await Product.findByIdAndUpdate(req.params.id, req.body, {
@@ -47,12 +70,14 @@ exports.deleteProduct = async function (req, res, next) {
     // check if the product exists or not.
     const product = await Product.findById(req.params.id);
 
-    if (!product) return res.status(400).json({
-        success: false,
-        message: "No such product exists!"
-    });
+    if (!product) return next(new ErrorHandler("No such product exits!", 400));
 
-    await product.remove();
+    try {
+        await product.remove();
+    } catch (exc) {
+        return next(new ErrorHandler(exc.message, 500));
+    }
+
     res.status(200).json({
         success: true,
         message: "Deleted Successfully!"

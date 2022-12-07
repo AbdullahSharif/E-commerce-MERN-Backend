@@ -9,6 +9,16 @@ const PORT = process.env.PORT;
 dbConnection();
 
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
+
+// if any unhandled Promise Rejections occur
+process.on("unhandledRejection", (err) => {
+    console.log(`Error occured: ${err.message}`);
+    console.log("Shutting down the server due to unhandled promise rejection");
+    server.close(() => {
+        process.exit(1);
+    })
+})
+

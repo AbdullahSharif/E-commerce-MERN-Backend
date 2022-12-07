@@ -1,23 +1,22 @@
 const Product = require("../models/Product");
 const ErrorHandler = require("../utils/errorHandler");
 const asyncErrorHandler = require("../middlewares/asyncErrorHandler");
+const Features = require("../utils/Features");
 
-exports.getAllProducts = async function (req, res, next) {
-    try {
-        const products = await Product.find();
-        res.status(200).json({
-            success: true,
-            products
-        });
 
-    } catch (exc) {
-        next(new ErrorHandler(exc.message, 500));
-    }
+exports.getAllProducts = asyncErrorHandler(async function (req, res, next) {
+    const searchFeature = new Features(Product, req.query).search();
+    const products = await searchFeature.query;
+    res.status(200).json({
+        success: true,
+        products
+    });
 
-}
+})
 
-exports.getProductDetails = async function (req, res, next) {
+exports.getProductDetails = asyncErrorHandler(async function (req, res, next) {
     // check whether the product exists.
+
     const product = await Product.findById(req.params.id);
     if (!product) return next(new ErrorHandler("Product not found!", 400));
 
@@ -27,7 +26,7 @@ exports.getProductDetails = async function (req, res, next) {
         product
     })
 
-}
+})
 
 // try-catch approach
 // // Admin route

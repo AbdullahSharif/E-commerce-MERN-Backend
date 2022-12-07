@@ -5,11 +5,14 @@ const Features = require("../utils/Features");
 
 
 exports.getAllProducts = asyncErrorHandler(async function (req, res, next) {
-    const searchFeature = new Features(Product, req.query).search();
+    const resultsPerPage = 5;
+    const productCount = await Product.countDocuments();
+    const searchFeature = new Features(Product.find(), req.query).search().filter().pagination(resultsPerPage);
     const products = await searchFeature.query;
     res.status(200).json({
         success: true,
-        products
+        products,
+        productCount: productCount
     });
 
 })

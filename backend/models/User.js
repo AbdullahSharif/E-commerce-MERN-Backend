@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -42,6 +43,20 @@ const userSchema = new mongoose.Schema({
     resetPasswordToken: String,
     resetPasswordExpire: Date
 
+})
+
+// now we need to hash the pasword when the password is modified.
+userSchema.pre("save", async function (next) {
+    if (this.isModified(["password"])) {
+        try {
+            const salt = await bcrypt.genSalt(10);
+            this.password = await bcrypt.hash(this.password, salt);
+
+        } catch (exc) {
+            next(exc);
+        }
+    }
+    return;
 })
 
 module.exports = mongoose.model('user', userSchema);

@@ -22,7 +22,7 @@ dbConnection();
 
 // if any unhandled Promise Rejections occur
 process.on("unhandledRejection", (err) => {
-    console.log(`Error occured: ${err.message}`);
+    console.log(`Error occured: ${err.stack}`);
     console.log("Shutting down the server due to unhandled promise rejection");
     server.close();
     process.exit(1);

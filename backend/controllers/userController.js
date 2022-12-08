@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const asyncErrorHandler = require("../middlewares/asyncErrorHandler");
 const ErrorHandler = require("../utils/errorHandler");
+const generateToken = require("../utils/generateToken");
 
 exports.createUser = asyncErrorHandler(async (req, res) => {
     const { name, email, password } = req.body;
@@ -11,11 +12,8 @@ exports.createUser = asyncErrorHandler(async (req, res) => {
             url: "firstImage"
         }
     });
-    const token = user.getJwtToken();
-    return res.status(201).json({
-        success: true,
-        token
-    });
+
+    generateToken(user, 201, res);
 
 })
 
@@ -36,16 +34,8 @@ exports.loginUser = asyncErrorHandler(async (req, res, next) => {
     // if the user with the provided email exists, then check whether the password is correct or not.
     // const passwordValidation = user.comparePassword(password);
 
-
     if (!(await user.comparePassword(password))) { return next(new ErrorHandler("Invalid email or password!", 401)) };
     // if the user exists and all the provided credentials are true, then issue jwt.
-    const token = user.getJwtToken();
-
-    return res.status(200).json({
-        success: true,
-        token
-    });
-
-
+    generateToken(user, 200, res);
 
 })

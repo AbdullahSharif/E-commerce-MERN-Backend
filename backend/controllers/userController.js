@@ -10,10 +10,10 @@ exports.createUser = asyncErrorHandler(async (req, res) => {
             url: "firstImage"
         }
     });
-
+    const token = user.getJwtToken();
     return res.status(201).json({
         success: true,
-        user
+        token
     });
 
 })

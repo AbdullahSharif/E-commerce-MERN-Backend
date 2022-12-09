@@ -17,6 +17,7 @@ exports.createUser = asyncErrorHandler(async (req, res) => {
 
     generateToken(user, 201, res);
 
+
 })
 
 exports.loginUser = asyncErrorHandler(async (req, res, next) => {
@@ -113,4 +114,31 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
     await user.save();
 
     generateToken(user, 200, res);
+})
+
+// get user details
+exports.getUserDetails = asyncErrorHandler(async (req, res, next) => {
+    const user = await User.findById(req.user._id);
+
+    res.status(200).json({
+        success: true,
+        user
+    });
+});
+
+// update password.
+exports.updatePassword = asyncErrorHandler(async (req, res, next) => {
+    const user = await User.findById(req.user._id).select("+password");
+
+    const isOldPasswordMatched = user.comparePassword(req.body.oldPassword);
+    if (!isOldPasswordMatched) { return next(new ErrorHandler("Old password does not match!", 400)) }
+
+    if (req.body.newPassword !== req.body.confirmPassword) { return next(new ErrorHandler("Password and Confirm password fields do not match!")) }
+
+    user.password = req.body.newPassword;
+
+    await user.save();
+
+    generateToken(user, 200, res);
+
 })

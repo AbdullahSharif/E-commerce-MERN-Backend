@@ -142,3 +142,82 @@ exports.updatePassword = asyncErrorHandler(async (req, res, next) => {
     generateToken(user, 200, res);
 
 })
+
+// update profile.
+exports.updateProfile = asyncErrorHandler(async (req, res, next) => {
+    const newData = {
+        name: req.body.name,
+        email: req.body.email
+    }
+
+    await User.findByIdAndUpdate(req.user.id, newData, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false
+    });
+
+    res.status(200).json({
+        success: true
+    })
+
+})
+
+// get all the users -- Admin route
+exports.getAllUsers = asyncErrorHandler(async (req, res, next) => {
+    const users = await User.find();
+
+    res.status(200).json({
+        success: true,
+        users
+    })
+
+})
+
+// get a single user -- Admin route
+exports.getSingleUser = asyncErrorHandler(async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+
+    if (!user) { return next(new ErrorHandler("No such user exists!", 400)) }
+
+    res.status(200).json({
+        success: true,
+        user
+    })
+})
+
+// admin can update the role of a single user.
+exports.updateUserRole = asyncErrorHandler(async (req, res, next) => {
+    const newUserData = {
+        email: req.body.email,
+        name: req.body.name,
+        role: req.body.role
+    }
+
+    // find the user
+    const user = await User.findById(req.params.id);
+
+    if (!user) { return next(new ErrorHandler("User not found!", 404)) }
+
+    await User.findByIdAndUpdate(req.params.id, newUserData, {
+        new: true,
+        useFindAndModify: false,
+        runValidators: true
+    })
+
+    res.status(200).json({
+        success: true
+    })
+})
+
+// admin can delete a user. (unless it is not another admin)
+exports.deleteUser = asyncErrorHandler(async (req, res, next) => {
+    // find the user.
+    const user = await User.findById(req.params.id);
+    if (!user) { return next(new ErrorHandler("No Such user exists!", 404)) }
+    if (user.role == "admin") { return res.status(400).json({ success: true, message: "Admin can not be deleted!" }) }
+
+    await user.remove();
+    res.status(200).json({
+        success: true
+    })
+})

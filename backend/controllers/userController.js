@@ -3,6 +3,7 @@ const asyncErrorHandler = require("../middlewares/asyncErrorHandler");
 const ErrorHandler = require("../utils/errorHandler");
 const generateToken = require("../utils/generateToken");
 const sendEmail = require("../utils/sendEmail");
+const crypto = require("crypto");
 
 exports.createUser = asyncErrorHandler(async (req, res) => {
     const { name, email, password } = req.body;
@@ -53,7 +54,7 @@ exports.logout = asyncErrorHandler(async (req, res, next) => {
     })
 })
 
-exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
+exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
     // first find the user.
     const user = await User.findOne({ email: req.body.email });
     if (!user) { return next(new ErrorHandler("Invalid Email!")); }
@@ -89,4 +90,27 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
 
     }
 
+})
+
+exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
+    // find the user with the given token.
+    // console.log(req.params.token);
+    const user = await User.findOne({
+        resetPasswordToken: crypto.createHash("sha256").update(req.params.token).digest("hex"),
+        resetPasswordExpire: { $gt: Date.now() }
+    })
+    // console.log(user);
+    if (!user) { return next(new ErrorHandler("Invalid requets or the token has expired!", 400)) };
+
+    if (req.body.password !== req.body.confirmPassword) {
+        return next(new ErrorHandler("Password & confirm password does not match!", 400));
+    }
+
+    user.password = req.body.password;
+    user.resetPasswordExpire = undefined;
+    user.resetPasswordToken = undefined;
+
+    await user.save();
+
+    generateToken(user, 200, res);
 })

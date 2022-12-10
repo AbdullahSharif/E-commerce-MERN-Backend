@@ -5,8 +5,8 @@ const { authenticateUser, authenticateRoles } = require("../middlewares/auth");
 const router = express.Router();
 
 router.route("/orders/new").post(authenticateUser, createOrder);
-router.route("/orders/:id").get(authenticateUser, getSingleOrder).delete(authenticateUser, deleteOrder);
-router.route("/orders/me").get(authenticateUser, getAllOrdersOfLoggedIn);
+router.route("/order/:id").get(authenticateUser, getSingleOrder).delete(authenticateUser, deleteOrder);
+router.route("/orders/myOrders").get(authenticateUser, getAllOrdersOfLoggedIn);
 router.route("/admin/orders/all").get(authenticateUser, authenticateRoles("admin"), getAllOrdersInDB);
 router.route("/admin/order/:id").put(authenticateUser, authenticateRoles("admin"), updateOrderStatus);
 

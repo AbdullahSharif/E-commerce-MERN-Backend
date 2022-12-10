@@ -7,7 +7,6 @@ exports.createOrder = asyncErrorHandler(async (req, res, next) => {
     const { shippingInfo,
         orderItems,
         paymentInfo,
-        paidAt,
         itemsPrice,
         taxPrice,
         shippingPrice,
@@ -19,7 +18,6 @@ exports.createOrder = asyncErrorHandler(async (req, res, next) => {
         shippingInfo,
         orderItems,
         paymentInfo,
-        paidAt,
         itemsPrice,
         taxPrice,
         shippingPrice,
@@ -48,8 +46,9 @@ exports.getSingleOrder = asyncErrorHandler(async (req, res, next) => {
 
 // to get all orders of logged in user.
 exports.getAllOrdersOfLoggedIn = asyncErrorHandler(async (req, res, next) => {
-    const orders = await Order.find({ user: req.user._id });
+    console.log(req.user._id);
 
+    const orders = await Order.find({ user: req.user._id });
     if (!orders) { return next(new ErrorHandler("You have ordered nothing yet!", 404)) }
 
     return res.status(200).json({
@@ -100,9 +99,11 @@ exports.updateOrderStatus = asyncErrorHandler(async (req, res, next) => {
         order.orderItems.forEach(async (orderItem) => {
             await updateStock(orderItem.product, orderItem.quantity);
         })
+        order.orderStatus = "shipped";
     }
-    if (req.body.orderStatus === "Delivered") {
+    if (req.body.orderStatus === "delivered") {
         order.deliveredAt = Date.now();
+        order.orderStatus = "delivered"
     }
     await order.save({ validateBeforeSave: false });
 
@@ -115,7 +116,7 @@ exports.updateOrderStatus = asyncErrorHandler(async (req, res, next) => {
 async function updateStock(id, quantity) {
     const product = await Product.findById(id);
 
-    product.quantity -= quantity;
+    product.stock -= quantity;
     await product.save({ validateBeforeSave: false });
 }
 

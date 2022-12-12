@@ -2,6 +2,15 @@ const app = require("./app");
 const dotenv = require("dotenv");
 const dbConnection = require("./config/database");
 const ErrorHandler = require("./utils/errorHandler");
+// const cors = require("cors");
+// const corsOptions = {
+//     origin: '*',
+//     mode: "cors",
+//     credentials: true,            //access-control-allow-credentials:true
+//     optionSuccessStatus: 200,
+// }
+// app.use(cors(corsOptions))
+
 
 // if any uncaught exceptions occur
 process.on("uncaughtException", (err) => {

@@ -4,10 +4,18 @@ import { Link } from "react-router-dom";
 import { FaSearch, FaBars, FaShoppingCart } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import { AiOutlineLogin, AiOutlineLogout } from "react-icons/ai";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import logo from "../../../images/logo.jpg";
+import WebFont from "webfontloader";
 
 const Navbar = (params) => {
+  useEffect(() => {
+    WebFont.load({
+      google: {
+        families: ["Droid Sans", "Chilanka"],
+      },
+    });
+  }, []);
   const [openBars, setOpenBars] = useState(false);
 
   const handleClick = () => {

@@ -10,6 +10,7 @@ import ShoppingCart from './components/Pages/ShoppingCart/ShoppingCart';
 import Profile from './components/Pages/Profile/Profile';
 import SignUp from './components/Pages/SignUp/SignUp';
 import Login from './components/Pages/Login/Login';
+import Footer from './components/layout/Footer/Footer';
 function App() {
   return (
     <>
@@ -27,6 +28,7 @@ function App() {
           <Route path='/signUp' element={<SignUp />} />
           <Route path='/login' element={<Login />} />
         </Routes>
+        <Footer />
       </Router>
     </>
   );

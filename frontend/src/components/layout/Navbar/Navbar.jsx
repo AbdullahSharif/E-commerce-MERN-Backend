@@ -30,7 +30,7 @@ const Navbar = (params) => {
 
   return (
     <>
-      <nav>
+      <nav className="fixed w-full bg-white">
         <div className="bars" onClick={handleClick}>
           <FaBars className="bars" />
         </div>

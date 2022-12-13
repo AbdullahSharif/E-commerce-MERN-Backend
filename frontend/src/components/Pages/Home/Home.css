@@ -1,5 +1,16 @@
-*{
+/* *{
     overflow: hidden;
+} */
+.home{
+    position: relative;
 }
+.banner{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    /* left: 0px; */
+    bottom: 0px;
+    clip-path: polygon(100% 65%, 0% 100%, 100% 100%);
 
+}
 

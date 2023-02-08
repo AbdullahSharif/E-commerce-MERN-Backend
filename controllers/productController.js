@@ -1,6 +1,7 @@
 const Product = require('../models/productModel');
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
+const ApiFeatures = require('../utils/apiFeatures');
 
 
 // create product  -- Admin route
@@ -16,10 +17,19 @@ exports.createProduct = catchAsyncErrors(async (req, res) => {
 })
 
 exports.getAllProducts = async (req, res) => {
-    const products = await Product.find();
+
+    const resultsPerPage = 5;
+    const productCount = await Product.countDocuments();
+    // Basically, we will send the query of the data base and what we want to find.
+    // General Synatx -> ApiFeatures(Query, Feature you want to apply).
+    // Feature -> http://hostName/api/allRoutes/products/allProducts?Key=anything
+    // so the thins after ? in the url will be the req.query object
+    const apiFeatures = new ApiFeatures(Product.find(), req.query).search().filter().pagination(resultsPerPage);
+    const products = await apiFeatures.query;
     return res.status(200).json({
         success: true,
-        products
+        products,
+        productCount
     })
 }
 

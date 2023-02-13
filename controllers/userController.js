@@ -174,3 +174,86 @@ exports.updateUserPassword = catchAsyncErrors(async (req, res, next) => {
 
 
 })
+
+exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
+    const newUserData = {
+        name: req.body.name,
+        email: req.body.email
+    }
+
+    const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false
+    })
+
+    res.status(200).json({
+        success: true,
+        user
+
+    })
+})
+
+// some admin routes.
+
+exports.getAllUsers = catchAsyncErrors(async (req, res, next) => {
+    const users = await User.find();
+
+    return res.status(200).json({
+        success: true,
+        users
+    })
+})
+
+// get details of a single user.
+exports.getSingleUserDetailsForAdmin = catchAsyncErrors(async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+        return next(new ErrorHandler(`No such user exists with id: ${req.params.id}`));
+    }
+
+    return res.status(200).json({
+        success: true,
+        user
+    })
+})
+
+// update the role of any user.
+exports.updateUserRole = catchAsyncErrors(async (req, res, next) => {
+    const newUserData = {
+        name: req.body.name,
+        email: req.body.email,
+        role: req.body.role
+    }
+
+    const user = await User.findByIdAndUpdate(req.params.id, newUserData, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false
+    });
+
+    res.status(200).json({
+        success: true,
+        user
+    })
+})
+
+// delete a user.
+exports.deleteUser = catchAsyncErrors(async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+        return next(new ErrorHandler(`No such user exists with id: ${req.params.id}`));
+    }
+
+    // remove the user.
+    await user.remove();
+
+    res.status(200).json({
+        success: true
+    })
+
+
+
+})
